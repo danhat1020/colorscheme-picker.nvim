@@ -9,7 +9,7 @@ local persistence = require("colorscheme-picker.persistence")
 local util = require("colorscheme-picker.util")
 
 M.config = {
-	default_scheme = "no_default_set", -- can declare default or reload last used scheme
+	default_scheme = "default", -- can declare default or reload last used scheme
 	picker = "fzf-lua", -- "fzf-lua" or "telescope"
 	include_stock = false, -- include all neovim colorschemes or only installed ones
 	colors = {
@@ -49,7 +49,7 @@ function M.setup(opts)
 
 	M.config = vim.tbl_deep_extend("force", M.config, opts)
 
-	if M.config.default_scheme and M.config.default_scheme ~= "no_default_set" then
+	if M.config.default_scheme and M.config.default_scheme ~= "default" then
 		M.state.current = M.config.default_scheme
 	else
 		M.state.current = persistence.load()
@@ -190,7 +190,7 @@ function M.apply(name)
 
 	M.state.current = name
 
-	if not M.config.default_scheme or M.config.default_scheme == "no_default_set" then
+	if not M.config.default_scheme or M.config.default_scheme == "default" then
 		persistence.save(name)
 	end
 
