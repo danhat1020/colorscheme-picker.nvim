@@ -120,6 +120,7 @@ When enabled, the following highlight groups are cleared:
 - `NormalFloat`
 - `SignColumn`
 - `StatusLine`
+
 If `lualine.nvim` is installed, it will be reloaded automatically.
 
 ___
