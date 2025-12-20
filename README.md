@@ -7,7 +7,7 @@ ___
 
 ## Showcase
 
-![](./assets/showcase_video.mp4)
+[![demo](assets/showcase_video.gif)](assets/showcase_video.mp4)
 
 ___
 
