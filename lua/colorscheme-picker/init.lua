@@ -18,6 +18,8 @@ M.config = {
 		line_number = nil, -- set other line numbers color
 		comment = nil, -- set comment color
 		inc_search = nil, -- set background of incremental search
+		end_of_buffer = nil, -- set ~ color at end of file, set false to remove, or leave as default
+		visual_mode = nil, -- set background color of visual mode selection
 	},
 	style = {
 		bold = true, -- universal bold
@@ -35,11 +37,6 @@ M.state = {
 	did_setup = false,
 }
 
-M._preview = {
-	original = nil,
-	active = false,
-}
-
 function M.setup(opts)
 	if M.state.did_setup then
 		return
@@ -52,10 +49,6 @@ function M.setup(opts)
 
 	M.config = vim.tbl_deep_extend("force", M.config, opts)
 
-	if M.config.default_scheme and M.config.default_scheme ~= "default" then
-		M.state.current = M.config.default_scheme
-	end
-
 	-- validation
 	if not vim.tbl_contains({ "fzf-lua", "telescope" }, M.config.picker) then
 		vim.notify("[colorscheme-picker] Invalid picker: " .. tostring(M.config.picker), vim.log.levels.ERROR)
@@ -66,7 +59,12 @@ function M.setup(opts)
 		once = true,
 		nested = true,
 		callback = function()
-			M.apply(vim.g.SCHEME)
+			local def = M.config.default_scheme
+			if def and def ~= "default" then
+				M.apply(def)
+			else
+				M.apply(vim.g.SCHEME)
+			end
 			M.apply_keymaps()
 		end,
 	})
@@ -85,34 +83,6 @@ function M.setup(opts)
 			return require("colorscheme-picker").get_schemes()
 		end,
 	})
-end
-
-function M.begin_preview()
-	if not M._preview.active then
-		M._preview.original = M.state.current
-		M._preview.active = true
-	end
-end
-
-function M.preview(name)
-	if not name or name == "" then
-		return
-	end
-	M.begin_preview()
-	M.apply(name)
-end
-
-function M.end_preview(confirm)
-	if not M._preview.active then
-		return
-	end
-
-	if not confirm and M._preview.original then
-		M.apply(M._preview.original)
-	end
-
-	M._preview.original = nil
-	M._preview.active = false
 end
 
 function M.get_schemes()
@@ -179,6 +149,11 @@ function M.pick()
 	end
 end
 
+local function hl(group, opts)
+	vim.api.nvim_set_hl(0, group, {})
+	vim.api.nvim_set_hl(0, group, opts)
+end
+
 function M.apply(name)
 	if not name or name == "" then
 		return
@@ -188,8 +163,6 @@ function M.apply(name)
 	if not ok then
 		vim.notify("[colorscheme-picker] Colorscheme not found: " .. name, vim.log.levels.WARN)
 		return
-	else
-		vim.cmd.colorscheme(name)
 	end
 
 	M.state.current = name
@@ -198,28 +171,43 @@ function M.apply(name)
 		vim.g.SCHEME = name
 	end
 
-	vim.api.nvim_set_hl(0, "WinBar", { fg = "#808080", bg = "none" })
-	vim.api.nvim_set_hl(0, "WinBarNC", { fg = "#505050", bg = "none" })
 	M.apply_font_styles()
+	M.apply_highlight_colors()
 	if M.config.colors.transparent then
 		M.apply_transparency()
 	end
+	M.apply_highlight_colors()
+end
+
+function M.apply_highlight_colors()
 	if M.config.colors.cursor_line ~= nil then
-		vim.api.nvim_set_hl(0, "CursorLine", { bg = M.config.colors.cursor_line })
+		hl("CursorLine", { bg = M.config.colors.cursor_line })
 	end
 	if M.config.colors.line_number_current ~= nil then
-		vim.api.nvim_set_hl(0, "CursorLineNr", { fg = M.config.colors.line_number_current })
+		hl("CursorLineNr", { fg = M.config.colors.line_number_current })
 	end
 	if M.config.colors.line_number ~= nil then
-		vim.api.nvim_set_hl(0, "LineNr", { fg = M.config.colors.line_number })
+		hl("LineNr", { fg = M.config.colors.line_number })
 	end
 	if M.config.colors.comment ~= nil then
-		vim.api.nvim_set_hl(0, "Comment", { fg = M.config.colors.comment, bg = "none" })
+		hl("@lsp.type.comment", { fg = M.config.colors.comment })
+		hl("@comment", { fg = M.config.colors.comment })
+		hl("Comment", { fg = M.config.colors.comment })
 	end
 	if M.config.colors.inc_search ~= nil then
-		vim.api.nvim_set_hl(0, "IncSearch", { fg = "#000000", bg = M.config.colors.inc_search })
+		hl("IncSearch", { fg = "#000000", bg = M.config.colors.inc_search })
 	end
-	vim.api.nvim_set_hl(0, "StatusLineNC", { fg = "#808080", bg = "none" })
+	if M.config.colors.end_of_buffer == false then
+		vim.opt.fillchars:append({ eob = " " })
+	elseif M.config.colors.end_of_buffer ~= nil then
+		hl("EndOfBuffer", { fg = M.config.colors.end_of_buffer })
+	end
+	if M.config.colors.visual_mode ~= nil then
+		hl("Visual", { bg = M.config.colors.visual_mode })
+	end
+	hl("StatusLineNC", { fg = "#808080", bg = "none" })
+	hl("WinBar", { fg = "#808080", bg = "none" })
+	hl("WinBarNC", { fg = "#505050", bg = "none" })
 end
 
 function M.print()
