@@ -214,7 +214,7 @@ function M.apply(name)
 		vim.api.nvim_set_hl(0, "LineNr", { fg = M.config.colors.line_number })
 	end
 	if M.config.colors.comment ~= nil then
-		vim.api.nvim_set_hl(0, "Comment", { fg = M.config.colors.comment })
+		vim.api.nvim_set_hl(0, "Comment", { fg = M.config.colors.comment, bg = "none" })
 	end
 	if M.config.colors.inc_search ~= nil then
 		vim.api.nvim_set_hl(0, "IncSearch", { fg = "#000000", bg = M.config.colors.inc_search })
