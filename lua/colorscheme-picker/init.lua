@@ -95,6 +95,9 @@ end
 
 function M._pick_fzf()
 	require("fzf-lua").fzf_exec(M.get_schemes(), {
+		winopts = {
+			width = 0.4,
+		},
 		prompt = "Pick colorscheme: ",
 		actions = {
 			["default"] = function(selected)
