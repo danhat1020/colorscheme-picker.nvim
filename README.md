@@ -13,7 +13,7 @@ ___
 
 ### ✨ Features
 - Interactive colorscheme picker
-    - Supports fzf-lua or Telescope
+    - Supports fzf-lua, telescope or native-find
 - Persist last-used colorscheme across restarts
 - Optional default colorscheme on startup
 - Filter between user-installed and stock colorschemes
@@ -35,6 +35,8 @@ Using lazy.nvim
 		"ibhagwan/fzf-lua",
         -- or
         -- "nvim-telescope/telescope.nvim"
+        -- or
+        -- "danhat1020/native-find.nvim"
 	},
 	config = function()
 		require("colorscheme-picker").setup()
@@ -42,7 +44,7 @@ Using lazy.nvim
 }
 ```
 
-You must install either fzf-lua or telescope.nvim.
+You must install fzf-lua, telescope.nvim or native-find.nvim.
 
 ___
 

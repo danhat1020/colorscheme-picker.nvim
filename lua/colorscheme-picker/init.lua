@@ -9,7 +9,7 @@ local util = require("colorscheme-picker.util")
 
 M.config = {
 	default_scheme = "default", -- can declare default or reload last used scheme
-	picker = "fzf-lua", -- "fzf-lua" or "telescope"
+	picker = "fzf-lua", -- "fzf-lua" or "telescope" or "native-find"
 	include_stock = false, -- include all neovim colorschemes or only installed ones
 	colors = {
 		transparent = false, -- set background to universally transparent
@@ -50,7 +50,7 @@ function M.setup(opts)
 	M.config = vim.tbl_deep_extend("force", M.config, opts)
 
 	-- validation
-	if not vim.tbl_contains({ "fzf-lua", "telescope" }, M.config.picker) then
+	if not vim.tbl_contains({ "fzf-lua", "telescope", "native-find" }, M.config.picker) then
 		vim.notify("[colorscheme-picker] Invalid picker: " .. tostring(M.config.picker), vim.log.levels.ERROR)
 		return
 	end
@@ -133,6 +133,12 @@ function M._pick_telescope()
 		:find()
 end
 
+function M._pick_native()
+	require("native-find").pick(M.get_schemes(), {
+		prompt = "Pick colorscheme: ",
+	})
+end
+
 function M.pick()
 	M.get_schemes()
 	if M.config.picker == "fzf-lua" then
@@ -142,11 +148,18 @@ function M.pick()
 			vim.notify("[colorscheme-picker] fzf-lua not found", vim.log.levels.ERROR)
 			return
 		end
-	else
+	elseif M.config.picker == "telescope" then
 		if safe_required("telescope") then
 			M._pick_telescope()
 		else
 			vim.notify("[colorscheme-picker] telescope not found", vim.log.levels.ERROR)
+			return
+		end
+	elseif M.config.picker == "native-find" then
+		if safe_required("native-find") then
+			M._pick_native()
+		else
+			vim.notify("[colorscheme-picker] native-find not found", vim.log.levels.ERROR)
 			return
 		end
 	end
