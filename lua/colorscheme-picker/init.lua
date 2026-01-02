@@ -116,8 +116,6 @@ end
 function M._pick_fzf()
 	local fzf = require("fzf-lua")
 
-	local committed = false
-
 	fzf.fzf_exec(M.get_schemes(), {
 		winopts = {
 			width = 0.4,
@@ -129,18 +127,7 @@ function M._pick_fzf()
 		actions = {
 			["default"] = function(selected)
 				M.apply(selected[1])
-				return true
 			end,
-		},
-		fzf_opts = {
-			["--preview-window"] = "right:hidden",
-			["--preview"] = table.concat({
-				"nvim",
-				"--server",
-				vim.v.servername,
-				"--remote-expr",
-				string.format("require('colorscheme-picker')._preview_scheme('%s')", "{1}"),
-			}, " "),
 		},
 	})
 end
