@@ -10,14 +10,14 @@ local util = require("colorscheme-picker.util")
 M.config = {
 	default_scheme = "default", -- can declare default or reload last used scheme
 	picker = "default", -- "fzf-lua" or "telescope" or "native-find" or "default"
-	include_stock = false, -- include all neovim colorschemes or only installed ones
+	include_stock = true, -- include all neovim colorschemes or only installed ones
 	colors = {
 		transparent = false, -- set background to universally transparent
 		cursor_line = nil, -- set cursorline color
 		line_number_current = nil, -- set current line number color
 		line_number = nil, -- set other line numbers color
 		comment = nil, -- set comment color
-		inc_search = nil, -- set background of incremental search
+		mode_in_cmdbar = nil, -- set mode message color
 		end_of_buffer = nil, -- set ~ color at end of file, set false to remove, or leave as default
 		visual_mode = nil, -- set background color of visual mode selection
 	},
@@ -68,6 +68,11 @@ function M.setup(opts)
 			M.apply_keymaps()
 		end,
 	})
+	vim.api.nvim_create_autocmd("ColorScheme", {
+		callback = function()
+			M.apply(vim.g.SCHEME)
+		end,
+	})
 
 	vim.api.nvim_create_user_command("ColorschemePick", function()
 		require("colorscheme-picker").pick()
@@ -104,7 +109,7 @@ end
 function M._pick_fzf()
 	require("fzf-lua").fzf_exec(M.get_schemes(), {
 		winopts = {
-			width = 0.2,
+			width = 1.0,
 		},
 		prompt = "Pick colorscheme: ",
 		actions = {
@@ -195,7 +200,6 @@ function M.apply(name)
 		vim.g.SCHEME = name
 	end
 
-	M.apply_highlight_colors()
 	if M.config.colors.transparent then
 		M.apply_transparency()
 	end
@@ -218,8 +222,8 @@ function M.apply_highlight_colors()
 		hl("@comment", { fg = M.config.colors.comment })
 		hl("Comment", { fg = M.config.colors.comment })
 	end
-	if M.config.colors.inc_search ~= nil then
-		hl("IncSearch", { fg = "#000000", bg = M.config.colors.inc_search })
+	if M.config.colors.mode_in_cmdbar ~= nil then
+		hl("ModeMsg", { fg = M.config.colors.mode_in_cmdbar })
 	end
 	if M.config.colors.end_of_buffer == false then
 		vim.opt.fillchars:append({ eob = " " })
@@ -229,9 +233,9 @@ function M.apply_highlight_colors()
 	if M.config.colors.visual_mode ~= nil then
 		hl("Visual", { bg = M.config.colors.visual_mode })
 	end
-	hl("StatusLineNC", { fg = "#808080", bg = "none" })
-	hl("WinBar", { fg = "#808080", bg = "none" })
-	hl("WinBarNC", { fg = "#505050", bg = "none" })
+	hl("StatusLineNC", { fg = "#808080", bg = "NONE" })
+	hl("WinBar", { fg = "#808080", bg = "NONE" })
+	hl("WinBarNC", { fg = "#505050", bg = "NONE" })
 end
 
 function M.print()
@@ -239,7 +243,7 @@ function M.print()
 end
 
 function M.apply_transparency()
-	local clear = { bg = "none" }
+	local clear = { bg = "NONE" }
 	vim.api.nvim_set_hl(0, "Normal", clear)
 	vim.api.nvim_set_hl(0, "NormalNC", clear)
 	vim.api.nvim_set_hl(0, "NormalFloat", clear)
