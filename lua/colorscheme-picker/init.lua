@@ -37,10 +37,6 @@ M.state = {
 	did_setup = false,
 }
 
-local function get_current_scheme()
-	return vim.g.SCHEME ~= "" and vim.g.SCHEME or vim.g.colors_name
-end
-
 function M.setup(opts)
 	if M.state.did_setup then
 		return
