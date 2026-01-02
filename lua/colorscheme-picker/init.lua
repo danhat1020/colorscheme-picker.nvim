@@ -132,7 +132,12 @@ function M._pick_fzf()
 		},
 		prompt = "Pick colorscheme: ",
 		actions = {
-			["change"] = function(selected)
+			["default"] = function(selected)
+				committed = true
+				M.apply(selected[1])
+				return true
+			end,
+			["ctrl-n"] = function(selected)
 				local scheme = selected[1]
 				if scheme and scheme ~= last_previewed then
 					last_previewed = scheme
@@ -140,10 +145,13 @@ function M._pick_fzf()
 				end
 				return false
 			end,
-			["default"] = function(selected)
-				committed = true
-				M.apply(selected[1])
-				return true
+			["ctrl-p"] = function(selected)
+				local scheme = selected[1]
+				if scheme and scheme ~= last_previewed then
+					last_previewed = scheme
+					M.apply(scheme)
+				end
+				return false
 			end,
 		},
 		fzf_opts = {
