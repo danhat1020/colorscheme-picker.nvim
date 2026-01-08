@@ -20,6 +20,7 @@ M.config = {
 		mode_in_cmdbar = nil, -- set mode message color
 		end_of_buffer = nil, -- set ~ color at end of file, set false to remove, or leave as default
 		visual_mode = nil, -- set background color of visual mode selection
+		highlight_search = nil, -- set background color of highlights
 	},
 	style = {
 		bold = true, -- universal bold
@@ -216,6 +217,17 @@ function M.apply_highlight_colors()
 	hl("StatusLineNC", { fg = "#808080", bg = "NONE" })
 	hl("WinBar", { fg = "#808080", bg = "NONE" })
 	hl("WinBarNC", { fg = "#505050", bg = "NONE" })
+
+	if M.config.colors.highlight_search then
+		hl("HlOnYank", { fg = "#000000", bg = M.config.colors.highlight_search })
+		vim.api.nvim_create_autocmd("TextYankPost", {
+			group = vim.api.nvim_create_augroup("HighlightYank", {}),
+			pattern = "*",
+			callback = function()
+				vim.hl.on_yank({ higroup = "HlOnYank", timeout = 400 })
+			end,
+		})
+	end
 end
 
 function M.print()
