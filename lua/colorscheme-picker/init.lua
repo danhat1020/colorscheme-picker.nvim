@@ -219,14 +219,7 @@ function M.apply_highlight_colors()
 	hl("WinBarNC", { fg = "#505050", bg = "NONE" })
 
 	if M.config.colors.highlight_search then
-		hl("HlOnYank", { fg = "#000000", bg = M.config.colors.highlight_search })
-		vim.api.nvim_create_autocmd("TextYankPost", {
-			group = vim.api.nvim_create_augroup("HighlightYank", {}),
-			pattern = "*",
-			callback = function()
-				vim.hl.on_yank({ higroup = "HlOnYank", timeout = 400 })
-			end,
-		})
+		hl("IncSearch", { fg = "#000000", bg = M.config.colors.highlight_search })
 	end
 end
 
